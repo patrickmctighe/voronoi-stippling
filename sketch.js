@@ -3,12 +3,12 @@ let delaunay, voronoi;
 let bubbas;
 
 function preload(){
-  bubbas = loadImage('bubbaz1.png');
+  bubbas = loadImage('sadie.png');
 }
 
 function setup() {
-  createCanvas(440, 600);
-  for(let i = 0 ; i< 10000; i++){
+  createCanvas(828, 1036);
+  for(let i = 0 ; i< 70000; i++){
     let x = random(width);
     let y = random(height);
     let col = bubbas.get(x, y);
@@ -28,45 +28,63 @@ function draw() {
   background(255);
 
   for(let v of points){
-    stroke(0);
+    let col = bubbas.get(v.x, v.y);
+    stroke(col);
     strokeWeight(4);
-    point(v.x, v.y);
+   point(v.x, v.y);
   }
 
   let polygons = voronoi.cellPolygons();
   let cells = Array.from(polygons);
 
-  // for (let poly of cells){
+  // for (let i = 0; i < cells.length; i++){
+  //   let poly = cells[i];
+  //   let col = bubbas.get(points[i].x, points[i].y);
+  //   fill(col);
   //   stroke(0);
   //   strokeWeight(1);
-  //   noFill();
   //   beginShape();
-  // for (let i= 0 ; i<poly.length; i++){
-  //   vertex(poly[i][0], poly[i][1]);
-
+  //   for (let j = 0 ; j < poly.length; j++){
+  //     vertex(poly[j][0], poly[j][1]);
+  //   }
+  //   endShape(CLOSE);
   // }
-  // endShape();
-  // }
 
-  let centroids =[];
-for(let poly of cells){
-  let area = 0;
-let centroid = createVector(0, 0);
-for (let i = 0; i < poly.length; i++){
-  let v0 = poly[i];
-  let v1 = poly[(i+1) % poly.length];
-  let crossValue = v0[0] * v1[1] - v1[0] * v0[1];
- area += crossValue;
- centroid.x += (v0[0] + v1[0]) * crossValue;
-  centroid.y += (v0[1] + v1[1]) * crossValue;
+  let centroids = new Array(cells.length);
+let weights = new Array(cells.length).fill(0);
+
+for(let i= 0 ; i <centroids.length; i++){
+  centroids[i] = createVector(0,0)
+}
+bubbas.loadPixels();
+let delaunayIndex= 0
+for (let i= 0 ; i<width; i++){
+  for (let j= 0 ; j<height; j++){
+    let index = i+j * width * 4;
+    let r = bubbas.pixels[index + 0];
+    let g = bubbas.pixels[index + 1];
+    let b = bubbas.pixels[index + 2];
+    let bright= (r+g+b)/3;
+    let weight = 1 - bright/255;
+    delaunayIndex = delaunay.find(i, j, delaunayIndex);
+    centroids[delaunayIndex].x += i * weight;
+    centroids[delaunayIndex].y += j * weight;
+    weights[delaunayIndex] += weight;
+  }
+}
+
+for(let i = 0; i< centroids.length; i++){
+  if(weights[i] > 0){  centroids[i].div(weights[i]);}
+
+else{
+  centroids= points[i].copy();
+}
 
 }
-area/=2;
-centroid.div(6*area);
-centroids.push(centroid);
-}
+
+
 for (let i = 0 ; i< points.length; i++){
-  points[i].lerp(centroids[i], 1);
+  points[i].lerp(centroids[i], 0.01);
 }
 delaunay = calculateDelaunay(points);
 voronoi = delaunay.voronoi([0, 0, width, height]);
