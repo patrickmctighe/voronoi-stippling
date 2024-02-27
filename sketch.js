@@ -18,22 +18,16 @@ function draw() {
     point(v.x, v.y);
   }
 
-  noFill();
-  strokeWeight(1);
-  console.log(delaunay.triangles)
-  let {points,triangles} = delaunay;
-  for (let i = 0; i < delaunay.triangles.length; i+=3){
-let a = 2*delaunay.triangles[i];
-let b = 2*delaunay.triangles[i+1];
-let c = 2*delaunay.triangles[i+2];
-    triangle(points[a], points[a+1], points[b], points[b+1], points[c], points[c+1]);
-  }
+
 
   let voronoi = delaunay.voronoi([0, 0, width, height]);
   let polygons = voronoi.cellPolygons();
   for (let poly of polygons){
+    stroke(0);
+    strokeWeight(1);
+    noFill();
     beginShape();
-  for (let i= 0 ; i<poly.length; i+=2){
+  for (let i= 0 ; i<poly.length; i++){
     vertex(poly[i][0], poly[i][1]);
 
   }
