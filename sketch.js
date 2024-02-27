@@ -1,18 +1,19 @@
-let seedPoints = [];
-let delaunay;
+let points = [];
+let delaunay, voronoi;
 
 function setup() {
-  createCanvas(400, 400);
-  for(let i = 0 ; i< 100; i++){
-    seedPoints[i] = createVector(random(width), random(height));
+  createCanvas(600, 600);
+  for(let i = 0 ; i< 1000; i++){
+    points[i] = createVector(random(width), random(height));
   }
-  delaunay = calculateDelaunay(seedPoints);
+  delaunay = calculateDelaunay(points);
+  voronoi = delaunay.voronoi([0, 0, width, height]);
 }
 
 function draw() {
   background(255);
 
-  for(let v of seedPoints){
+  for(let v of points){
     stroke(0);
     strokeWeight(4);
     point(v.x, v.y);
@@ -20,9 +21,12 @@ function draw() {
 
 
 
-  let voronoi = delaunay.voronoi([0, 0, width, height]);
+ 
+
+
   let polygons = voronoi.cellPolygons();
-  for (let poly of polygons){
+  let cells = Array.from(polygons);
+  for (let poly of cells){
     stroke(0);
     strokeWeight(1);
     noFill();
@@ -33,6 +37,22 @@ function draw() {
   }
   endShape();
   }
+
+  let centroids =[];
+for(let poly of cells){
+let centroid = createVector(0, 0);
+for (let i = 0; i < poly.length; i++){
+  centroid.x += poly[i][0];
+  centroid.y += poly[i][1];
+}
+centroid.div(poly.length);
+centroids.push(centroid);
+}
+for (let i = 0 ; i< points.length; i++){
+  points[i].lerp(centroids[i], 0.1);
+}
+delaunay = calculateDelaunay(points);
+voronoi = delaunay.voronoi([0, 0, width, height]);
 }
 
 function calculateDelaunay(points){
