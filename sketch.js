@@ -40,12 +40,19 @@ function draw() {
 
   let centroids =[];
 for(let poly of cells){
+  let area = 0;
 let centroid = createVector(0, 0);
 for (let i = 0; i < poly.length; i++){
-  centroid.x += poly[i][0];
-  centroid.y += poly[i][1];
+  let v0 = poly[i];
+  let v1 = poly[(i+1) % poly.length];
+  let crossValue = v0[0] * v1[1] - v1[0] * v0[1];
+ area += crossValue;
+ centroid.x += (v0[0] + v1[0]) * crossValue;
+  centroid.y += (v0[1] + v1[1]) * crossValue;
+
 }
-centroid.div(poly.length);
+area/=2;
+centroid.div(6*area);
 centroids.push(centroid);
 }
 for (let i = 0 ; i< points.length; i++){
