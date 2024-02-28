@@ -10,13 +10,13 @@ let center;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  for(let i = 0 ; i < 10; i++){ // Adjust the number of points as per your preference
+  for (let i = 0; i < 10; i++) {
     let x = random(width);
     let y = random(height);
     points.push(createVector(x, y));
-    colors.push(color(random(255), random(255), random(255))); // Assign a random color to each point
-    scales.push(1); // Initial scale for each cell
-    scaleSpeeds.push(initialScaleSpeed); // Initial scale speed for each cell
+    colors.push(color(random(255), random(255), random(255)));
+    scales.push(1);
+    scaleSpeeds.push(initialScaleSpeed);
   }
   delaunay = calculateDelaunay(points);
   voronoi = delaunay.voronoi([0, 0, width, height]);
@@ -24,18 +24,24 @@ function setup() {
 }
 
 function mousePressed() {
-  // Add a large number of points near the mouse position
-  for(let i = 0 ; i < 10; i++){ // Adjust the number of points as per your preference
-    let x = mouseX + random(-50, 50); // Adjust the range as per your preference
-    let y = mouseY + random(-50, 50); // Adjust the range as per your preference
+  for (let i = 0; i < 10; i++) {
+    let x = mouseX + random(-50, 50);
+    let y = mouseY + random(-50, 50);
     points.push(createVector(x, y));
     targets.push(createVector(x, y));
-    colors.push(color(random(255), random(255), random(255))); // Assign a random color to each point
-    scales.push(1); // Initial scale for each new cell
-    scaleSpeeds.push(initialScaleSpeed); // Initial scale speed for each new cell
+    colors.push(color(random(255), random(255), random(255)));
+    scales.push(1);
+    scaleSpeeds.push(initialScaleSpeed);
   }
   delaunay = calculateDelaunay(points);
   voronoi = delaunay.voronoi([0, 0, width, height]);
+}
+
+function mouseDragged() {
+  // Move the points along with mouse drag
+  for (let i = 0; i < points.length; i++) {
+    points[i].add(mouseX - pmouseX, mouseY - pmouseY);
+  }
 }
 
 let timer = 0;
@@ -44,25 +50,23 @@ let growing = true;
 function draw() {
   background(255);
 
-  // Draw Voronoi cells and calculate centroids
   let polygons = voronoi.cellPolygons();
   let cells = Array.from(polygons);
   let centroids = [];
   let totalMoved = 0;
-  for (let i = 0; i < cells.length; i++){
+  for (let i = 0; i < cells.length; i++) {
     let poly = cells[i];
-    let col = colors[i]; // Use the color assigned to the point
-    if (p5.Vector.dist(points[i], center) > 5) { // Change 50 to your desired minimum distance
+    let col = colors[i];
+    if (p5.Vector.dist(points[i], center) > 5) {
       fill(col);
       noStroke();
       beginShape();
-      for (let j = 0 ; j < poly.length; j++){
+      for (let j = 0; j < poly.length; j++) {
         vertex(poly[j][0], poly[j][1]);
       }
       endShape(CLOSE);
     }
 
-    // Calculate centroid and move point towards it
     let centroid = calculateCentroid(poly);
     let moved = p5.Vector.dist(points[i], centroid);
     totalMoved += moved;
@@ -74,8 +78,7 @@ function draw() {
       points[i].lerp(center, 0.01);
     }
   }
-  
-  // Update scale
+
   for (let i = 0; i < cells.length; i++) {
     if (growing) {
       scales[i] += scaleSpeeds[i];
@@ -90,22 +93,21 @@ function draw() {
     }
   }
 
-  // Update timer and growing flag
   timer++;
-  if (timer >= 5) { // Change the number to adjust the duration of growing and shrinking
+  if (timer >= 5) {
     timer = 0;
     growing = !growing;
   }
 
-  // Update Delaunay and Voronoi if points have moved a significant distance
   if (totalMoved > 1) {
     delaunay = calculateDelaunay(points);
     voronoi = delaunay.voronoi([0, 0, width, height]);
   }
 }
-function calculateDelaunay(points){
+
+function calculateDelaunay(points) {
   let pointsArray = [];
-  for(let v of points){
+  for (let v of points) {
     pointsArray.push([v.x, v.y]);
   }
   return d3.Delaunay.from(pointsArray);
