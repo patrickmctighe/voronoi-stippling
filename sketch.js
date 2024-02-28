@@ -1,6 +1,9 @@
 let points = [];
 let colors = [];
 let targets = [];
+let scales = [];
+let maxScale = 10; // Maximum scale for each cell
+let scaleSpeed = 1; // Speed at which each cell grows or shrinks
 let delaunay, voronoi;
 
 function setup() {
@@ -10,6 +13,7 @@ function setup() {
     let y = random(height);
     points.push(createVector(x, y));
     colors.push(color(random(255), random(255), random(255))); // Assign a random color to each point
+    scales.push(1); // Initial scale for each cell
   }
   delaunay = calculateDelaunay(points);
   voronoi = delaunay.voronoi([0, 0, width, height]);
@@ -23,6 +27,7 @@ function mousePressed() {
     points.push(createVector(x, y));
     targets.push(createVector(x, y));
     colors.push(color(random(255), random(255), random(255))); // Assign a random color to each point
+    scales.push(1); // Initial scale for each new cell
   }
   delaunay = calculateDelaunay(points);
   voronoi = delaunay.voronoi([0, 0, width, height]);
@@ -64,9 +69,9 @@ function draw() {
 function calculateDelaunay(points){
   let pointsArray = [];
   for(let v of points){
-    pointsArray.push(v.x, v.y);
+    pointsArray.push([v.x, v.y]);
   }
-  return new d3.Delaunay(pointsArray);
+  return d3.Delaunay.from(pointsArray);
 }
 
 function calculateCentroid(poly) {
