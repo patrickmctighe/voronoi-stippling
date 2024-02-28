@@ -5,12 +5,11 @@ let delaunay, voronoi;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  for (let i = 0; i < 10; i++) {
+  for(let i = 0 ; i < 10; i++){ // Adjust the number of points as per your preference
     let x = random(width);
     let y = random(height);
     points.push(createVector(x, y));
-    targets.push(createVector(x, y)); // Initialize targets with current positions
-    colors.push(color(random(255), random(255), random(255)));
+    colors.push(color(random(255), random(255), random(255))); // Assign a random color to each point
   }
   delaunay = calculateDelaunay(points);
   voronoi = delaunay.voronoi([0, 0, width, height]);
@@ -18,12 +17,12 @@ function setup() {
 
 function mousePressed() {
   // Add a large number of points near the mouse position
-  for (let i = 0; i < 10; i++) {
-    let x = mouseX + random(-50, 50);
-    let y = mouseY + random(-50, 50);
+  for(let i = 0 ; i < 10; i++){ // Adjust the number of points as per your preference
+    let x = mouseX + random(-50, 50); // Adjust the range as per your preference
+    let y = mouseY + random(-50, 50); // Adjust the range as per your preference
     points.push(createVector(x, y));
     targets.push(createVector(x, y));
-    colors.push(color(random(255), random(255), random(255)));
+    colors.push(color(random(255), random(255), random(255))); // Assign a random color to each point
   }
   delaunay = calculateDelaunay(points);
   voronoi = delaunay.voronoi([0, 0, width, height]);
@@ -32,36 +31,59 @@ function mousePressed() {
 function draw() {
   background(255);
 
-  // Draw Voronoi cells
+  // Draw Voronoi cells and calculate centroids
   let polygons = voronoi.cellPolygons();
   let cells = Array.from(polygons);
-
-  beginShape(); // Begin batch drawing
-  for (let i = 0; i < cells.length; i++) {
+  let centroids = [];
+  let totalMoved = 0;
+  for (let i = 0; i < cells.length; i++){
     let poly = cells[i];
-    let col = colors[i];
+    let col = colors[i]; // Use the color assigned to the point
     fill(col);
     noStroke();
-    for (let j = 0; j < poly.length; j++) {
+    beginShape();
+    for (let j = 0 ; j < poly.length; j++){
       vertex(poly[j][0], poly[j][1]);
     }
-  }
-  endShape(CLOSE); // End batch drawing
+    endShape(CLOSE);
 
-  // Move points towards targets
-  for (let i = 0; i < points.length; i++) {
-    points[i].lerp(targets[i], 0.005);
+    // Calculate centroid and move point towards it
+    let centroid = calculateCentroid(poly);
+    let moved = p5.Vector.dist(points[i], centroid);
+    totalMoved += moved;
+    points[i].lerp(centroid, 0.005);
   }
 
-  // Update Voronoi and Delaunay
-  delaunay = calculateDelaunay(points);
-  voronoi = delaunay.voronoi([0, 0, width, height]);
+  // Update Delaunay and Voronoi if points have moved a significant distance
+  if (totalMoved > 1) {
+    delaunay = calculateDelaunay(points);
+    voronoi = delaunay.voronoi([0, 0, width, height]);
+  }
 }
 
-function calculateDelaunay(points) {
+function calculateDelaunay(points){
   let pointsArray = [];
-  for (let v of points) {
+  for(let v of points){
     pointsArray.push(v.x, v.y);
   }
   return new d3.Delaunay(pointsArray);
+}
+
+function calculateCentroid(poly) {
+  let centroid = createVector(0, 0);
+  let signedArea = 0;
+  for (let i = 0; i < poly.length; i++) {
+    let x0 = poly[i][0];
+    let y0 = poly[i][1];
+    let x1 = poly[(i + 1) % poly.length][0];
+    let y1 = poly[(i + 1) % poly.length][1];
+    let a = x0 * y1 - x1 * y0;
+    signedArea += a;
+    centroid.x += (x0 + x1) * a;
+    centroid.y += (y0 + y1) * a;
+  }
+  signedArea *= 0.5;
+  centroid.x /= (6.0 * signedArea);
+  centroid.y /= (6.0 * signedArea);
+  return centroid;
 }
