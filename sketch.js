@@ -2,9 +2,11 @@ let points = [];
 let colors = [];
 let targets = [];
 let scales = [];
-let maxScale = 10; // Maximum scale for each cell
-let scaleSpeed = 1; // Speed at which each cell grows or shrinks
+let scaleSpeeds = [];
+let maxScale = 5; // Maximum scale for each cell
+let initialScaleSpeed = .01; // Speed at which each cell grows or shrinks
 let delaunay, voronoi;
+let center;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -14,9 +16,11 @@ function setup() {
     points.push(createVector(x, y));
     colors.push(color(random(255), random(255), random(255))); // Assign a random color to each point
     scales.push(1); // Initial scale for each cell
+    scaleSpeeds.push(initialScaleSpeed); // Initial scale speed for each cell
   }
   delaunay = calculateDelaunay(points);
   voronoi = delaunay.voronoi([0, 0, width, height]);
+  center = createVector(width / 2, height / 2);
 }
 
 function mousePressed() {
@@ -28,10 +32,14 @@ function mousePressed() {
     targets.push(createVector(x, y));
     colors.push(color(random(255), random(255), random(255))); // Assign a random color to each point
     scales.push(1); // Initial scale for each new cell
+    scaleSpeeds.push(initialScaleSpeed); // Initial scale speed for each new cell
   }
   delaunay = calculateDelaunay(points);
   voronoi = delaunay.voronoi([0, 0, width, height]);
 }
+
+let timer = 0;
+let growing = true;
 
 function draw() {
   background(255);
@@ -44,19 +52,49 @@ function draw() {
   for (let i = 0; i < cells.length; i++){
     let poly = cells[i];
     let col = colors[i]; // Use the color assigned to the point
-    fill(col);
-    noStroke();
-    beginShape();
-    for (let j = 0 ; j < poly.length; j++){
-      vertex(poly[j][0], poly[j][1]);
+    if (p5.Vector.dist(points[i], center) > 5) { // Change 50 to your desired minimum distance
+      fill(col);
+      noStroke();
+      beginShape();
+      for (let j = 0 ; j < poly.length; j++){
+        vertex(poly[j][0], poly[j][1]);
+      }
+      endShape(CLOSE);
     }
-    endShape(CLOSE);
 
     // Calculate centroid and move point towards it
     let centroid = calculateCentroid(poly);
     let moved = p5.Vector.dist(points[i], centroid);
     totalMoved += moved;
-    points[i].lerp(centroid, 0.005);
+    points[i].lerp(centroid, 0.0002);
+  }
+
+  if (!growing) {
+    for (let i = 0; i < points.length; i++) {
+      points[i].lerp(center, 0.01);
+    }
+  }
+  
+  // Update scale
+  for (let i = 0; i < cells.length; i++) {
+    if (growing) {
+      scales[i] += scaleSpeeds[i];
+      if (scales[i] >= maxScale) {
+        scales[i] = maxScale;
+      }
+    } else {
+      scales[i] -= scaleSpeeds[i];
+      if (scales[i] <= 1) {
+        scales[i] = 1;
+      }
+    }
+  }
+
+  // Update timer and growing flag
+  timer++;
+  if (timer >= 5) { // Change the number to adjust the duration of growing and shrinking
+    timer = 0;
+    growing = !growing;
   }
 
   // Update Delaunay and Voronoi if points have moved a significant distance
@@ -65,7 +103,6 @@ function draw() {
     voronoi = delaunay.voronoi([0, 0, width, height]);
   }
 }
-
 function calculateDelaunay(points){
   let pointsArray = [];
   for(let v of points){
