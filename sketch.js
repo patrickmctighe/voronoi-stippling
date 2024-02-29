@@ -51,12 +51,9 @@ function mousePressed() {
   }
 }
 function mouseDragged() {
-  if (clickedPoint !== -1) {
-    points[clickedPoint].x = mouseX;
-    points[clickedPoint].y = mouseY;
-    delaunay = calculateDelaunay(points);
-    voronoi = delaunay.voronoi([0, 0, width, height]);
-  }
+
+    mousePressed();
+  
 }
 
 function mouseReleased() {
