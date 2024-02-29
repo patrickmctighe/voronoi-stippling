@@ -7,6 +7,7 @@ let maxScale = 5; // Maximum scale for each cell
 let initialScaleSpeed = .01; // Speed at which each cell grows or shrinks
 let delaunay, voronoi;
 let center;
+let clickedPoint = -1;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -24,25 +25,45 @@ function setup() {
 }
 
 function mousePressed() {
-  for (let i = 0; i < 10; i++) {
-    let x = mouseX + random(-50, 50);
-    let y = mouseY + random(-50, 50);
-    points.push(createVector(x, y));
-    targets.push(createVector(x, y));
-    colors.push(color(random(255), random(255), random(255)));
-    scales.push(1);
-    scaleSpeeds.push(initialScaleSpeed);
+  let closestPoint = -1;
+  let closestDist = Infinity;
+  for (let i = 0; i < points.length; i++) {
+    let d = dist(mouseX, mouseY, points[i].x, points[i].y);
+    if (d < closestDist) {
+      closestDist = d;
+      closestPoint = i;
+    }
   }
-  delaunay = calculateDelaunay(points);
-  voronoi = delaunay.voronoi([0, 0, width, height]);
+  if (closestDist < 50) { // Change this to the maximum distance for a point to be considered "clicked"
+    clickedPoint = closestPoint;
+  } else {
+    for (let i = 0; i < 10; i++) {
+      let x = mouseX + random(-50, 50);
+      let y = mouseY + random(-50, 50);
+      points.push(createVector(x, y));
+      targets.push(createVector(x, y));
+      colors.push(color(random(255), random(255), random(255)));
+      scales.push(1);
+      scaleSpeeds.push(initialScaleSpeed);
+    }
+    delaunay = calculateDelaunay(points);
+    voronoi = delaunay.voronoi([0, 0, width, height]);
+  }
+}
+function mouseDragged() {
+  if (clickedPoint !== -1) {
+    points[clickedPoint].x = mouseX;
+    points[clickedPoint].y = mouseY;
+    delaunay = calculateDelaunay(points);
+    voronoi = delaunay.voronoi([0, 0, width, height]);
+  }
 }
 
-function mouseDragged() {
-  // Move the points along with mouse drag
-  for (let i = 0; i < points.length; i++) {
-    points[i].add(mouseX - pmouseX, mouseY - pmouseY);
-  }
+function mouseReleased() {
+  clickedPoint = -1; // Reset the clicked point
 }
+
+
 
 let timer = 0;
 let growing = true;
