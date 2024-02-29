@@ -3,15 +3,15 @@ let colors = [];
 let targets = [];
 let scales = [];
 let scaleSpeeds = [];
-let maxScale = 5; // Maximum scale for each cell
-let initialScaleSpeed = .01; // Speed at which each cell grows or shrinks
+let maxScale = 10; // Maximum scale for each cell
+let initialScaleSpeed = .0001; // Speed at which each cell grows or shrinks
 let delaunay, voronoi;
 let center;
 let clickedPoint = -1;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 5; i++) {
     let x = random(width);
     let y = random(height);
     points.push(createVector(x, y));
@@ -34,7 +34,7 @@ function mousePressed() {
       closestPoint = i;
     }
   }
-  if (closestDist < 50) { // Change this to the maximum distance for a point to be considered "clicked"
+  if (closestDist < 10) { 
     clickedPoint = closestPoint;
   } else {
     for (let i = 0; i < 10; i++) {
@@ -57,7 +57,7 @@ function mouseDragged() {
 }
 
 function mouseReleased() {
-  clickedPoint = -1; // Reset the clicked point
+  clickedPoint = -1; 
 }
 
 
