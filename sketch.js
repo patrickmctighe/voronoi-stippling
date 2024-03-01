@@ -12,7 +12,7 @@ let timer = 0;
 let growing = true;
 let colorChanged = false; // Add this flag outside the draw() function
 let targetColors; // Declare targetColors variable
-let lerpSpeed = 0.01; // Define lerpSpeed
+let lerpSpeed = .003; // Define lerpSpeed
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -50,7 +50,7 @@ function mousePressed() {
       points.push(createVector(x, y));
       targets.push(createVector(x, y));
       colors.push(color(random(255), random(255), random(255)));
-      targetColors.push(color(0, 0, 0)); // Add this line
+      targetColors.push(color(255, 255, 255)); // Add this line
       scales.push(1);
       scaleSpeeds.push(initialScaleSpeed);
     }
@@ -67,7 +67,6 @@ function mouseDragged() {
 function mouseReleased() {
   clickedPoint = -1; 
 }
-
 
 
 
@@ -113,20 +112,25 @@ function draw() {
     points[i].lerp(centroid, 0.0002);
   }
 
-  // Start the color transition if one cell disappears and the color hasn't been changed yet
-  if (cellDisappeared && !colorChanged) {
-    for (let j = 0; j < colors.length; j++) {
-      targetColors[j] = color(random(200,255), random(200,255), random(200,255)); // Set a random target color
-    }
-    colorChanged = true; // Set colorChanged to true after starting the color transition
+// Start the color transition if one cell disappears and the color hasn't been changed yet
+if (cellDisappeared && !colorChanged) {
+  for (let j = 0; j < colors.length; j++) {
+    let currentColor = colors[j];
+    // Set a random target color that is lighter than the current color
+    let targetR = min(red(currentColor) + 25, 255);
+    let targetG = min(green(currentColor) + 25, 255);
+    let targetB = min(blue(currentColor) + 25, 255);
+    targetColors[j] = color(targetR, targetG, targetB);
   }
+  colorChanged = true; // Set colorChanged to true after starting the color transition
+}
 
   // Perform the color transition
   if (colorChanged) {
     let allColorsReached = true; // Flag to check if all colors have reached their target
 
     for (let j = 0; j < colors.length; j++) {
-      colors[j] = lerpColor(colors[j], targetColors[j], lerpSpeed); // Lerp the color
+      colors[j] = lerpColor(colors[j], targetColors[j], lerpSpeed, colorMode(RGB)); // Lerp the color using RGB mode
 
       // Check if the color has reached its target
       if (red(colors[j]) != red(targetColors[j]) || green(colors[j]) != green(targetColors[j]) || blue(colors[j]) != blue(targetColors[j])) {
