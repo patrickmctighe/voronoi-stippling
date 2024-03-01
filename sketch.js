@@ -3,26 +3,19 @@ let colors = [];
 let targets = [];
 let scales = [];
 let scaleSpeeds = [];
-let maxScale = 10; // Maximum scale for each cell
-let initialScaleSpeed = .0001; // Speed at which each cell grows or shrinks
+let maxScale = 30; // Maximum scale for each cell
+let initialScaleSpeed = .00001; // Speed at which each cell grows or shrinks
 let delaunay, voronoi;
 let center;
 let clickedPoint = -1;
-let timer = 0;
-let growing = true;
-let colorChanged = false; // Add this flag outside the draw() function
-let targetColors; // Declare targetColors variable
-let lerpSpeed = .003; // Define lerpSpeed
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  targetColors = new Array(colors.length).fill(color(0, 0, 0)); // Initialize targetColors here
   for (let i = 0; i < 5; i++) {
     let x = random(width);
     let y = random(height);
     points.push(createVector(x, y));
     colors.push(color(random(255), random(255), random(255)));
-targetColors.push(color(255, 255, 255)); 
     scales.push(1);
     scaleSpeeds.push(initialScaleSpeed);
   }
@@ -41,16 +34,15 @@ function mousePressed() {
       closestPoint = i;
     }
   }
-  if (closestDist < 10) { 
+  if (closestDist < 15) { 
     clickedPoint = closestPoint;
-  }   else {
+  } else {
     for (let i = 0; i < 10; i++) {
       let x = mouseX + random(-50, 50);
       let y = mouseY + random(-50, 50);
       points.push(createVector(x, y));
       targets.push(createVector(x, y));
       colors.push(color(random(255), random(255), random(255)));
-      targetColors.push(color(255, 255, 255)); // Add this line
       scales.push(1);
       scaleSpeeds.push(initialScaleSpeed);
     }
@@ -70,83 +62,40 @@ function mouseReleased() {
 
 
 
+let timer = 0;
+let growing = true;
+
 function draw() {
   background(255);
 
+
+  
   let polygons = voronoi.cellPolygons();
   let cells = Array.from(polygons);
   let centroids = [];
   let totalMoved = 0;
-  let cellDisappeared = false; // Reset the flag here
-
   for (let i = 0; i < cells.length; i++) {
     let poly = cells[i];
     let col = colors[i];
-
-    if (p5.Vector.dist(points[i], center) > 30) {
-      cellDisappeared = true; // Set cellDisappeared to true here
-
+    if (p5.Vector.dist(points[i], center) > 15) {
+      fill(col);
       noStroke();
       beginShape();
-
-      let insideCanvas = true;
       for (let j = 0; j < poly.length; j++) {
-        if (poly[j][0] < 0 || poly[j][0] > width || poly[j][1] < 0 || poly[j][1] > height) {
-          insideCanvas = false;
-          break;
-        }
+        vertex(poly[j][0], poly[j][1]);
       }
-
-      if (insideCanvas) { // Draw the cell only if it's inside the canvas
-        fill(col);
-        for (let j = 0; j < poly.length; j++) {
-          vertex(poly[j][0], poly[j][1]);
-        }
-        endShape(CLOSE);
-      }
+      endShape(CLOSE);
     }
 
     let centroid = calculateCentroid(poly);
     let moved = p5.Vector.dist(points[i], centroid);
     totalMoved += moved;
-    points[i].lerp(centroid, 0.0002);
-  }
-
-// Start the color transition if one cell disappears and the color hasn't been changed yet
-if (cellDisappeared && !colorChanged) {
-  for (let j = 0; j < colors.length; j++) {
-    let currentColor = colors[j];
-    // Set a random target color that is lighter than the current color
-    let targetR = min(red(currentColor) + 25, 255);
-    let targetG = min(green(currentColor) + 25, 255);
-    let targetB = min(blue(currentColor) + 25, 255);
-    targetColors[j] = color(targetR, targetG, targetB);
-  }
-  colorChanged = true; // Set colorChanged to true after starting the color transition
-}
-
-  // Perform the color transition
-  if (colorChanged) {
-    let allColorsReached = true; // Flag to check if all colors have reached their target
-
-    for (let j = 0; j < colors.length; j++) {
-      colors[j] = lerpColor(colors[j], targetColors[j], lerpSpeed, colorMode(RGB)); // Lerp the color using RGB mode
-
-      // Check if the color has reached its target
-      if (red(colors[j]) != red(targetColors[j]) || green(colors[j]) != green(targetColors[j]) || blue(colors[j]) != blue(targetColors[j])) {
-        allColorsReached = false;
-      }
-    }
-
-    // Reset colorChanged to false if all colors have reached their target
-    if (allColorsReached) {
-      colorChanged = false;
-    }
+    points[i].lerp(centroid, 0.01);
   }
 
   if (!growing) {
     for (let i = 0; i < points.length; i++) {
-      points[i].lerp(center, 0.01);
+      points[i].lerp(center, 0.005);
     }
   }
 
@@ -165,7 +114,7 @@ if (cellDisappeared && !colorChanged) {
   }
 
   timer++;
-  if (timer >= 5) {
+  if (timer >= 2) {
     timer = 0;
     growing = !growing;
   }
@@ -175,6 +124,7 @@ if (cellDisappeared && !colorChanged) {
     voronoi = delaunay.voronoi([0, 0, width, height]);
   }
 }
+
 function calculateDelaunay(points) {
   let pointsArray = [];
   for (let v of points) {
