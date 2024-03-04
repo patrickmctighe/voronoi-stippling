@@ -6,3 +6,10 @@ html, body {
 canvas {
   display: block;
 }
+
+.slidersContainer{
+ display:flex;
+  justify-content: center;
+  align-items: center;
+  gap:.25em
+}

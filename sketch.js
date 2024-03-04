@@ -3,19 +3,33 @@ let colors = [];
 let targets = [];
 let scales = [];
 let scaleSpeeds = [];
-let maxScale = 30; // Maximum scale for each cell
+let maxScale = 1; // Maximum scale for each cell
 let initialScaleSpeed = .00001; // Speed at which each cell grows or shrinks
 let delaunay, voronoi;
 let center;
 let clickedPoint = -1;
+let suckSlider, balanceSlider, timeSlider, amountSlider, color1Slider, color2Slider, holeSlider;
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  suckSlider = document.getElementById('suckSlider');
+  balanceSlider = document.getElementById('balanceSlider');
+  timeSlider = document.getElementById('timeSlider');
+  amountSlider = document.getElementById('amountSlider');
+ 
+  color1Slider = document.getElementById('color1Slider');
+  color2Slider = document.getElementById('color2Slider');
+  holeSlider = document.getElementById('holeSlider');
+  let color1Value = parseFloat(color1Slider.value);
+
+
+
   for (let i = 0; i < 5; i++) {
     let x = random(width);
     let y = random(height);
     points.push(createVector(x, y));
-    colors.push(color(random(255), random(255), random(255)));
+    colors.push(color(random(color1Value), random(color1Value), random(color1Value)));
     scales.push(1);
     scaleSpeeds.push(initialScaleSpeed);
   }
@@ -27,6 +41,12 @@ function setup() {
 function mousePressed() {
   let closestPoint = -1;
   let closestDist = Infinity;
+
+  let color2Value = parseFloat(color2Slider.value);
+  let holeValue = parseFloat(holeSlider.value);
+  let amountValue = parseFloat(amountSlider.value);
+
+
   for (let i = 0; i < points.length; i++) {
     let d = dist(mouseX, mouseY, points[i].x, points[i].y);
     if (d < closestDist) {
@@ -34,15 +54,15 @@ function mousePressed() {
       closestPoint = i;
     }
   }
-  if (closestDist < 15) { 
+  if (closestDist < holeValue) { 
     clickedPoint = closestPoint;
   } else {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < amountValue; i++) {
       let x = mouseX + random(-50, 50);
       let y = mouseY + random(-50, 50);
       points.push(createVector(x, y));
       targets.push(createVector(x, y));
-      colors.push(color(random(255), random(255), random(255)));
+      colors.push(color(random(color2Value), random(color2Value), random(color2Value)));
       scales.push(1);
       scaleSpeeds.push(initialScaleSpeed);
     }
@@ -68,7 +88,14 @@ let growing = true;
 function draw() {
   background(255);
 
+  let suckValue = parseFloat(suckSlider.value);
+  let balanceValue = parseFloat(balanceSlider.value);
+  let timeValue = parseFloat(timeSlider.value);
 
+  
+  
+  
+  let holeValue = parseFloat(holeSlider.value);
   
   let polygons = voronoi.cellPolygons();
   let cells = Array.from(polygons);
@@ -77,7 +104,7 @@ function draw() {
   for (let i = 0; i < cells.length; i++) {
     let poly = cells[i];
     let col = colors[i];
-    if (p5.Vector.dist(points[i], center) > 15) {
+    if (p5.Vector.dist(points[i], center) > holeValue) {
       fill(col);
       noStroke();
       beginShape();
@@ -90,12 +117,12 @@ function draw() {
     let centroid = calculateCentroid(poly);
     let moved = p5.Vector.dist(points[i], centroid);
     totalMoved += moved;
-    points[i].lerp(centroid, 0.01);
+    points[i].lerp(centroid, suckValue);
   }
 
   if (!growing) {
     for (let i = 0; i < points.length; i++) {
-      points[i].lerp(center, 0.005);
+      points[i].lerp(center, balanceValue);
     }
   }
 
@@ -114,7 +141,7 @@ function draw() {
   }
 
   timer++;
-  if (timer >= 2) {
+  if (timer >= timeValue) {
     timer = 0;
     growing = !growing;
   }
