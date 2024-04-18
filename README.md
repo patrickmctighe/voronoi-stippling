@@ -6,4 +6,4 @@ p5.js
 css
 html
 
-Live:
+Live:https://patrickmctighe.github.io/voronoi-stippling/
