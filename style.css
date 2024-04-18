@@ -1,29 +1,129 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   font-family: "Titan One", sans-serif;
   font-weight: 400;
   font-style: normal;
- 
+  font-size: 1em;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 canvas {
   display: block;
 }
 
-.slidersContainer{
- display:flex;
+.slidersContainer {
+  display: none;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  gap: 0.25em;
+  padding: 1em;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.6);
+  width: 30vw;
+}
+
+.slidecontainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  text-align: center;
+  width: 30vw;
+}
+
+.sliderTitle {
+  width: 33%;
+}
+.slider {
+}
+.can {
+}
+.amount {
+  width: 23%;
+}
+.open {
+  font-family: "Titan One", sans-serif;
+  position: absolute;
+  height: 2.25vh;
+
+ 
+}
+.close {
+  font-family: "Titan One", sans-serif;
+  height: 3vh;
+  width: 12vw;
+}
+#resetButton {
+  font-family: "Titan One", sans-serif;
+  height: 3vh;
+  width: 12vw;
+}
+.closeReset{
+  display: flex;
+  justify-content: space-between;
   gap:.25em;
 
-
+}
+#suckSlider,
+#balanceSlider,
+#amountSlider,
+#color2Slider,
+#holeSlider,
+#growTimeSlider,
+#shrinkTimeSlider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 43%; 
+  height: 10px;
+  background: white; 
+  outline: none; 
+  opacity: 0.7; 
+  -webkit-transition: 0.2s; 
+  transition: opacity 0.2s;
 }
 
-.slidecontainer{
-  display:flex;
+#suckSlider:hover,
+#balanceSlider:hover,
+#amountSlider:hover,
+#color2Slider:hover,
+#holeSlider:hover,
+#growTimeSlider:hover,
+#shrinkTimeSlider:hover {
+  opacity: 1; 
 }
-.can{
-  
+
+#suckSlider::-webkit-slider-thumb,
+#balanceSlider::-webkit-slider-thumb,
+#amountSlider::-webkit-slider-thumb,
+#color2Slider::-webkit-slider-thumb,
+#holeSlider::-webkit-slider-thumb,
+#growTimeSlider::-webkit-slider-thumb,
+#shrinkTimeSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px; 
+  height: 18px; 
+  background: black; 
+  cursor: pointer; 
+}
+
+#suckSlider::-moz-range-thumb,
+#balanceSlider::-moz-range-thumb,
+#amountSlider::-moz-range-thumb,
+#color2Slider::-moz-range-thumb,
+#holeSlider::-moz-range-thumb,
+#growTimeSlider::-moz-range-thumb,
+#shrinkTimeSlider::-moz-range-thumb {
+  width: 25px; 
+  height: 25px; 
+  background: #4caf50; 
+  cursor: pointer; 
 }

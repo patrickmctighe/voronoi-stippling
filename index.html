@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Sketch</title>
+    <title>Pretty Voronoi</title>
 
     <link rel="stylesheet" type="text/css" href="style.css" />
 
@@ -22,7 +22,8 @@
     <button class="open">Open Menu</button>
     <div class="slidersContainer">
       <div class="slidecontainer">
-        <p>Shrink Speed</p>
+        <p class="sliderTitle">Shrink Speed</p>
+        <div class="amount"></div>
         <input
           type="range"
           min="0"
@@ -34,7 +35,8 @@
         />
       </div>
       <div class="slidecontainer">
-        <p>Relax Speed</p>
+        <p class="sliderTitle">Relax Speed</p>
+        <div class="amount"></div>
         <input
           type="range"
           min="0.000001"
@@ -47,7 +49,8 @@
       </div>
     
       <div class="slidecontainer">
-        <p>Unit Amount</p>
+        <p class="sliderTitle">Unit Amount</p>
+        <div class="amount"></div>
         <input
           type="range"
           min="5"
@@ -62,7 +65,8 @@
      
  
       <div class="slidecontainer">
-        <p>Color</p>
+        <p class="sliderTitle">Color</p>
+        <div class="amount"></div>
         <input
           type="range"
           min="1"
@@ -74,7 +78,8 @@
         />
         </div>
         <div class="slidecontainer">
-          <p>Center Size</p>
+          <p class="sliderTitle">Center Size</p>
+          <div class="amount"></div>
           <input
             type="range"
             min="0"
@@ -86,15 +91,21 @@
           />
         </div>
         <div class="slidecontainer">
-          <p>Grow Time:</p>
-          <input type="range" id="growTimeSlider" min="1" max="100" step="1" value="50">
+          <p class="sliderTitle">Grow Time</p>
+          <div class="amount"></div>
+          <input type="range" class="slider"id="growTimeSlider" min="1" max="100" step="1" value="50">
      </div>
   
      <div class="slidecontainer">  
-       <p>Shrink Time:</p>
-      <input type="range" id="shrinkTimeSlider" min="1" max="100" step="1" value="50">
+       <p class="sliderTitle">Shrink Time</p>
+       <div class="amount"></div>
+      <input type="range" id="shrinkTimeSlider" class="slider" min="1" max="100" step="1" value="50">
  </div>
- <button class="close">Close</button>
+ <div class="closeReset">
+   <button class="close">Close</button>
+ <button id="resetButton">Reset</button>
+ </div>
+
       </div>
    
     </div>

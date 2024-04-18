@@ -3,29 +3,67 @@ let colors = [];
 let targets = [];
 let scales = [];
 let scaleSpeeds = [];
-let maxScale = 1; // Maximum scale for each cell
-let initialScaleSpeed = .00001; // Speed at which each cell grows or shrinks
+let maxScale = 1;
+let initialScaleSpeed = 0.00001;
 let delaunay, voronoi;
 let center;
 let clickedPoint = -1;
-let suckSlider, balanceSlider, timeSlider, amountSlider, color2Slider, holeSlider,growTimeSlider, shrinkTimeSlider;
+let lastMouseDraggedCall = 0;
+let suckSlider,
+  balanceSlider,
+  timeSlider,
+  amountSlider,
+  color2Slider,
+  holeSlider,
+  growTimeSlider,
+  shrinkTimeSlider;
+var sliders = document.querySelectorAll(".slider");
+document.querySelector(".open").addEventListener("click", function () {
+  document.querySelector(".slidersContainer").style.display = "flex";
+  document.querySelector(".open").style.display = "none";
+});
 
+document.querySelector(".close").addEventListener("click", function () {
+  document.querySelector(".slidersContainer").style.display = "none";
+  document.querySelector(".open").style.display = "flex";
+});
+
+document.getElementById("resetButton").addEventListener("click", function () {
+  points = [];
+  colors = [];
+  background(255);
+  setup();
+});
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  draw();
+  console.log("resized");
+}
+
+for (var i = 0; i < sliders.length; i++) {
+  sliders[i].addEventListener("input", function () {
+    var amountDiv = this.parentNode.querySelector(".amount");
+    amountDiv.textContent = this.value;
+  });
+  sliders[i].addEventListener("mousedown", function (event) {
+    event.stopPropagation();
+  });
+  sliders[i].dispatchEvent(new Event("input"));
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  suckSlider = document.getElementById('suckSlider');
-  balanceSlider = document.getElementById('balanceSlider');
-  timeSlider = document.getElementById('timeSlider');
-  amountSlider = document.getElementById('amountSlider');
- 
-  growTimeSlider = document.getElementById('growTimeSlider');
-  shrinkTimeSlider = document.getElementById('shrinkTimeSlider');
+  suckSlider = document.getElementById("suckSlider");
+  balanceSlider = document.getElementById("balanceSlider");
+  timeSlider = document.getElementById("timeSlider");
+  amountSlider = document.getElementById("amountSlider");
 
-  color2Slider = document.getElementById('color2Slider');
-  holeSlider = document.getElementById('holeSlider');
+  growTimeSlider = document.getElementById("growTimeSlider");
+  shrinkTimeSlider = document.getElementById("shrinkTimeSlider");
 
-
-
+  color2Slider = document.getElementById("color2Slider");
+  holeSlider = document.getElementById("holeSlider");
 
   for (let i = 0; i < 5; i++) {
     let x = random(width);
@@ -48,7 +86,6 @@ function mousePressed() {
   let holeValue = parseFloat(holeSlider.value);
   let amountValue = parseFloat(amountSlider.value);
 
-
   for (let i = 0; i < points.length; i++) {
     let d = dist(mouseX, mouseY, points[i].x, points[i].y);
     if (d < closestDist) {
@@ -56,7 +93,7 @@ function mousePressed() {
       closestPoint = i;
     }
   }
-  if (closestDist < holeValue) { 
+  if (closestDist < holeValue) {
     clickedPoint = closestPoint;
   } else {
     for (let i = 0; i < amountValue; i++) {
@@ -64,7 +101,9 @@ function mousePressed() {
       let y = mouseY + random(-50, 50);
       points.push(createVector(x, y));
       targets.push(createVector(x, y));
-      colors.push(color(random(color2Value), random(color2Value), random(color2Value)));
+      colors.push(
+        color(random(color2Value), random(color2Value), random(color2Value))
+      );
       scales.push(1);
       scaleSpeeds.push(initialScaleSpeed);
     }
@@ -73,16 +112,16 @@ function mousePressed() {
   }
 }
 function mouseDragged() {
-
+  let now = Date.now();
+  if (now - lastMouseDraggedCall > 50) {
     mousePressed();
-  
+    lastMouseDraggedCall = now;
+  }
 }
 
 function mouseReleased() {
-  clickedPoint = -1; 
+  clickedPoint = -1;
 }
-
-
 
 let timer = 0;
 let growing = true;
@@ -95,9 +134,9 @@ function draw() {
 
   let growTimeValue = parseFloat(growTimeSlider.value);
   let shrinkTimeValue = parseFloat(shrinkTimeSlider.value);
-  
+
   let holeValue = parseFloat(holeSlider.value);
-  
+
   let polygons = voronoi.cellPolygons();
   let cells = Array.from(polygons);
   let totalMoved = 0;
@@ -117,12 +156,12 @@ function draw() {
     let centroid = calculateCentroid(poly);
     let moved = p5.Vector.dist(points[i], centroid);
     totalMoved += moved;
-    points[i].lerp(centroid,  balanceValue );
+    points[i].lerp(centroid, balanceValue);
   }
 
   if (!growing) {
     for (let i = 0; i < points.length; i++) {
-      points[i].lerp(center,suckValue);
+      points[i].lerp(center, suckValue);
     }
   }
 
@@ -167,7 +206,7 @@ function calculateCentroid(poly) {
     centroid.y += (y0 + y1) * a;
   }
   signedArea *= 0.5;
-  centroid.x /= (6.0 * signedArea);
-  centroid.y /= (6.0 * signedArea);
+  centroid.x /= 6.0 * signedArea;
+  centroid.y /= 6.0 * signedArea;
   return centroid;
 }
