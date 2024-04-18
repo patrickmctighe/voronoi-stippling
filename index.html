@@ -12,48 +12,42 @@
     <script src="libraries/p5.sound.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3-delaunay@6"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
   </head>
 
   <body>
+    <button class="open">Open Menu</button>
     <div class="slidersContainer">
       <div class="slidecontainer">
-        <p>Suck</p>
+        <p>Shrink Speed</p>
         <input
           type="range"
           min="0"
           max=".1"
-          value=".003"
+          value=".03"
           class="slider"
           step="0.0001"
           id="suckSlider"
         />
       </div>
       <div class="slidecontainer">
-        <p>relaxation</p>
+        <p>Relax Speed</p>
         <input
           type="range"
           min="0.000001"
-          max=".1"
+          max="2.01"
           value=".003"
           class="slider"
           step="0.0001"
           id="balanceSlider"
         />
       </div>
+    
       <div class="slidecontainer">
-        <p>time</p>
-        <input
-          type="range"
-          min="1"
-          max="100"
-          value="50"
-          class="slider"
-          step="0.0001"
-          id="timeSlider"
-        />
-      </div>
-      <div class="slidecontainer">
-        <p>amount</p>
+        <p>Unit Amount</p>
         <input
           type="range"
           min="5"
@@ -65,20 +59,10 @@
         />
       </div>
     
+     
+ 
       <div class="slidecontainer">
-        <p>color1</p>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          value="255"
-          step="0.001"
-          class="slider"
-          id="color1Slider"
-        />
-      </div>
-      <div class="slidecontainer">
-        color2
+        <p>Color</p>
         <input
           type="range"
           min="1"
@@ -88,8 +72,9 @@
           step="0.001"
           id="color2Slider"
         />
+        </div>
         <div class="slidecontainer">
-          <p>hole</p>
+          <p>Center Size</p>
           <input
             type="range"
             min="0"
@@ -100,10 +85,20 @@
             id="holeSlider"
           />
         </div>
+        <div class="slidecontainer">
+          <p>Grow Time:</p>
+          <input type="range" id="growTimeSlider" min="1" max="100" step="1" value="50">
+     </div>
+  
+     <div class="slidecontainer">  
+       <p>Shrink Time:</p>
+      <input type="range" id="shrinkTimeSlider" min="1" max="100" step="1" value="50">
+ </div>
+ <button class="close">Close</button>
       </div>
    
     </div>
 
-    <script src="sketch.js"></script>
+    <script class="can"src="sketch.js"></script>
   </body>
 </html>

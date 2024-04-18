@@ -8,7 +8,7 @@ let initialScaleSpeed = .00001; // Speed at which each cell grows or shrinks
 let delaunay, voronoi;
 let center;
 let clickedPoint = -1;
-let suckSlider, balanceSlider, timeSlider, amountSlider, color1Slider, color2Slider, holeSlider;
+let suckSlider, balanceSlider, timeSlider, amountSlider, color2Slider, holeSlider,growTimeSlider, shrinkTimeSlider;
 
 
 function setup() {
@@ -18,10 +18,12 @@ function setup() {
   timeSlider = document.getElementById('timeSlider');
   amountSlider = document.getElementById('amountSlider');
  
-  color1Slider = document.getElementById('color1Slider');
+  growTimeSlider = document.getElementById('growTimeSlider');
+  shrinkTimeSlider = document.getElementById('shrinkTimeSlider');
+
   color2Slider = document.getElementById('color2Slider');
   holeSlider = document.getElementById('holeSlider');
-  let color1Value = parseFloat(color1Slider.value);
+
 
 
 
@@ -29,7 +31,7 @@ function setup() {
     let x = random(width);
     let y = random(height);
     points.push(createVector(x, y));
-    colors.push(color(random(color1Value), random(color1Value), random(color1Value)));
+    colors.push(color(random(255), random(255), random(255)));
     scales.push(1);
     scaleSpeeds.push(initialScaleSpeed);
   }
@@ -39,7 +41,7 @@ function setup() {
 }
 
 function mousePressed() {
-  let closestPoint = -1;
+  let closestPoint = 1;
   let closestDist = Infinity;
 
   let color2Value = parseFloat(color2Slider.value);
@@ -90,16 +92,14 @@ function draw() {
 
   let suckValue = parseFloat(suckSlider.value);
   let balanceValue = parseFloat(balanceSlider.value);
-  let timeValue = parseFloat(timeSlider.value);
 
-  
-  
+  let growTimeValue = parseFloat(growTimeSlider.value);
+  let shrinkTimeValue = parseFloat(shrinkTimeSlider.value);
   
   let holeValue = parseFloat(holeSlider.value);
   
   let polygons = voronoi.cellPolygons();
   let cells = Array.from(polygons);
-  let centroids = [];
   let totalMoved = 0;
   for (let i = 0; i < cells.length; i++) {
     let poly = cells[i];
@@ -117,31 +117,25 @@ function draw() {
     let centroid = calculateCentroid(poly);
     let moved = p5.Vector.dist(points[i], centroid);
     totalMoved += moved;
-    points[i].lerp(centroid, suckValue);
+    points[i].lerp(centroid,  balanceValue );
   }
 
   if (!growing) {
     for (let i = 0; i < points.length; i++) {
-      points[i].lerp(center, balanceValue);
+      points[i].lerp(center,suckValue);
     }
   }
 
   for (let i = 0; i < cells.length; i++) {
-    if (growing) {
-      scales[i] += scaleSpeeds[i];
-      if (scales[i] >= maxScale) {
-        scales[i] = maxScale;
-      }
-    } else {
-      scales[i] -= scaleSpeeds[i];
-      if (scales[i] <= 1) {
-        scales[i] = 1;
-      }
-    }
+    let targetScale = growing ? maxScale : 1;
+    scales[i] = lerp(scales[i], targetScale, scaleSpeeds[i]);
   }
 
   timer++;
-  if (timer >= timeValue) {
+  if (growing && timer >= growTimeValue) {
+    timer = 0;
+    growing = !growing;
+  } else if (!growing && timer >= shrinkTimeValue) {
     timer = 0;
     growing = !growing;
   }
@@ -151,7 +145,6 @@ function draw() {
     voronoi = delaunay.voronoi([0, 0, width, height]);
   }
 }
-
 function calculateDelaunay(points) {
   let pointsArray = [];
   for (let v of points) {
